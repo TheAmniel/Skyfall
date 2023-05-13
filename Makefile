@@ -1,13 +1,15 @@
 # App info
-APP_NAME 		:= skyfall
-APP_ENTRY 	:= ./bin/$(APP_NAME)/main.go
-CONFIG_NAME := $(APP_NAME).config
-VERSION 		:= 1.0.0
-COMMIT 			:= $(shell git rev-parse --short HEAD)
-BRANCH 			:= $(shell git rev-parse --abbrev-ref HEAD)
+APP_NAME 			:= skyfall
+APP_ENTRY 		:= ./bin/$(APP_NAME)/main.go
+CONFIG_NAME 	:= $(APP_NAME).config
+CONFIG_FORMAT := toml
+VERSION 			:= 1.0.0
+COMMIT 				:= $(shell git rev-parse --short HEAD)
+BRANCH 				:= $(shell git rev-parse --abbrev-ref HEAD)
 
 GOOS 		:= $(shell go env GOOS)
 GOARCH 	:= $(shell go env GOARCH)
+COPY 		:= cp
 
 ifeq ($(GOOS), windows)
 	TARGET_OS ?= windows
@@ -23,11 +25,11 @@ endif
 # Folders
 OUTPUT_FOLDER := .release
 BINARY_OUTPUT := $(OUTPUT_FOLDER)/$(APP_NAME)
-CONFIG_OUTPUT := $(OUTPUT_FOLDER)/$(CONFIG_NAME)
+CONFIG_OUTPUT := $(OUTPUT_FOLDER)/$(CONFIG_NAME).$(CONFIG_FORMAT)
 
 ifeq ($(OS), Windows_NT)
 	OUTPUT_FOLDER := .\.release
-	CONFIG_OUTPUT := $(OUTPUT_FOLDER)\$(CONFIG_NAME)
+	CONFIG_OUTPUT := $(OUTPUT_FOLDER)\$(CONFIG_NAME).$(CONFIG_FORMAT)
 	COPY 	:= copy
 endif
 
@@ -57,13 +59,14 @@ fmt:
 build:
 	@echo Now building for platform $(GOOS)/$(GOARCH)!
 	@go build -ldflags "-s -w \
-		-X skyfall/utils.Version=${VERSION}\
-			-X skyfall/utils.Commit=${COMMIT}\
-				-X \"skyfall/utils.BuiltAt=${shell go run ./bin/built-at/main.go}\"\
-					-X skyfall/utils.Branch=${BRANCH}\
-						-X skyfall/utils.AppName=${APP_NAME}\
-							-X skyfall/utils.ConfigFile=${CONFIG_NAME}"\
-				-o $(BINARY_OUTPUT) $(APP_ENTRY)
+		-X skyfall/utils.Version=$(VERSION)\
+			-X skyfall/utils.Commit=$(COMMIT)\
+				-X \"skyfall/utils.BuiltAt=$(shell go run ./bin/built-at/main.go)\"\
+					-X skyfall/utils.Branch=$(BRANCH)\
+						-X skyfall/utils.AppName=$(APP_NAME)\
+							-X skyfall/utils.ConfigFile=$(CONFIG_NAME)"\
+				-o $(BINARY_OUTPUT) $(APP_ENTRY) &&\
+				$(COPY) .$(CONFIG_NAME).$(CONFIG_FORMAT) $(CONFIG_OUTPUT)
 	@echo Successfully built the binary. Use './.release/$(APP_NAME)' to run!
 
 .PHONY: run ## Run production

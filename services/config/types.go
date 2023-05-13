@@ -11,6 +11,7 @@ type (
 		Host          string `toml:"host"`
 		Port          string `toml:"port"`
 		Secret        string `toml:"secret"`
+		TimeZone      string `toml:"timeZone"`
 		Limit         int    `toml:"limit"`
 		Prefork       bool   `toml:"prefork"`
 		StrictRouting bool   `toml:"strict-routing"`
