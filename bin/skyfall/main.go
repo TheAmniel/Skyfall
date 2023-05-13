@@ -15,6 +15,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 
 	"skyfall/middlewares"
+	"skyfall/routes"
 	"skyfall/services/config"
 	"skyfall/services/database"
 	_ "skyfall/services/image"
@@ -29,7 +30,7 @@ func main() {
 		loc = time.Local
 	}
 	log.SetFlags(0)
-	log.SetPrefix("[" + time.Now().In(loc).Format("15:04:05") + "] ")
+	log.SetPrefix(time.Now().In(loc).Format("15:04:05") + " | ")
 
 	app := fiber.New(fiber.Config{
 		AppName:       "Skyfall",
@@ -68,6 +69,9 @@ func main() {
 			CacheControl: true,
 		}))
 	}
+
+	/* --- ROUTES --- */
+	routes.Configure(app, db, cfg.Server)
 
 	if !fiber.IsChild() {
 		log.Printf("Running Skyfall \"%s:%s\"\n", cfg.Server.Host, cfg.Server.Port)
