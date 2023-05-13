@@ -14,13 +14,15 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 
+	"skyfall/middlewares"
 	"skyfall/services/config"
-	_ "skyfall/services/database"
+	"skyfall/services/database"
 	_ "skyfall/services/image"
 )
 
 func main() {
 	cfg := config.Load()
+	db := database.New(cfg.Database)
 
 	loc, locErr := time.LoadLocation(cfg.Server.TimeZone)
 	if locErr != nil {
@@ -53,6 +55,10 @@ func main() {
 
 	if cfg.Middleware.Recover {
 		app.Use(recover.New())
+	}
+
+	if cfg.Middleware.Banned {
+		app.Use(middlewares.Banned(db))
 	}
 
 	if cfg.Middleware.Cache {
