@@ -1,3 +1,36 @@
+# App info
+APP_NAME 		:= skyfall
+APP_ENTRY 	:= ./bin/$(APP_NAME)/main.go
+CONFIG_NAME := $(APP_NAME).config
+VERSION 		:= 1.0.0
+COMMIT 			:= $(shell git rev-parse --short HEAD)
+BRANCH 			:= $(shell git rev-parse --abbrev-ref HEAD)
+
+GOOS 		:= $(shell go env GOOS)
+GOARCH 	:= $(shell go env GOARCH)
+
+ifeq ($(GOOS), windows)
+	TARGET_OS ?= windows
+	APP_NAME := $(APP_NAME).exe
+else ifeq ($(GOOS), linux)
+	TARGET_OS ?= linux
+else ifeq ($(GOOS), darwin)
+	TARGET_OS ?= darwin
+else
+	$(error System $(GOOS) is not supported at this time)
+endif
+
+# Folders
+OUTPUT_FOLDER := .release
+BINARY_OUTPUT := $(OUTPUT_FOLDER)/$(APP_NAME)
+CONFIG_OUTPUT := $(OUTPUT_FOLDER)/$(CONFIG_NAME)
+
+ifeq ($(OS), Windows_NT)
+	OUTPUT_FOLDER := .\.release
+	CONFIG_OUTPUT := $(OUTPUT_FOLDER)\$(CONFIG_NAME)
+	COPY 	:= copy
+endif
+
 .PHONY: default
 default: clean fmt build
 
@@ -22,10 +55,19 @@ fmt:
 
 .PHONY: build ## Build a version
 build:
-	@go build .
+	@echo Now building for platform $(GOOS)/$(GOARCH)!
+	@go build -ldflags "-s -w \
+		-X skyfall/utils.Version=${VERSION}\
+			-X skyfall/utils.Commit=${COMMIT}\
+				-X \"skyfall/utils.BuiltAt=${shell go run ./bin/built-at/main.go}\"\
+					-X skyfall/utils.Branch=${BRANCH}\
+						-X skyfall/utils.AppName=${APP_NAME}\
+							-X skyfall/utils.ConfigFile=${CONFIG_NAME}"\
+				-o $(BINARY_OUTPUT) $(APP_ENTRY)
+	@echo Successfully built the binary. Use './.release/$(APP_NAME)' to run!
 
 .PHONY: run ## Run production
 run:
-	@./skyfall
+	@$(BINARY_OUTPUT)
 
 .DEFAULT_GOAL := build
