@@ -19,7 +19,20 @@ import (
 	"skyfall/services/config"
 	"skyfall/services/database"
 	_ "skyfall/services/image"
+	_ "skyfall/services/video"
+	"skyfall/utils"
 )
+
+func init() {
+	toolsPath, err := utils.GetPath("tools")
+	if err != nil {
+		panic(err)
+	}
+
+	if err := os.Mkdir(toolsPath, 0777); err != nil && !os.IsExist(err) {
+		panic(err)
+	}
+}
 
 func main() {
 	cfg := config.Load()
@@ -84,9 +97,11 @@ func main() {
 	if !fiber.IsChild() {
 		log.Println("Press CTRL-C to stop the application")
 	}
+
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
+
 	if !fiber.IsChild() {
 		log.Println("Shutting down Skyfall connection...")
 	}

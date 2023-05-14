@@ -60,6 +60,18 @@ func Executable() (string, string, error) {
 	return dir, file, nil
 }
 
+func GetPath(p string) (string, error) {
+	dir, _, err := Executable()
+	if err != nil {
+		return "", err
+	}
+	dir += p
+	if dir[:len(dir)-1] != "/" {
+		dir += "/"
+	}
+	return dir, nil
+}
+
 func Gzip(data []byte) ([]byte, error) {
 	buff := bytes.NewBuffer(nil)
 	w, err := gzip.NewWriterLevel(buff, gzip.BestCompression)
