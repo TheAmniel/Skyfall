@@ -18,8 +18,6 @@ import (
 	"skyfall/routes"
 	"skyfall/services/config"
 	"skyfall/services/database"
-	_ "skyfall/services/image"
-	_ "skyfall/services/video"
 	"skyfall/utils"
 )
 

@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/klauspost/compress/gzip"
 )
@@ -18,11 +19,35 @@ var (
 	Commit     string
 	Branch     string
 	BuiltAt    string
-
-	values = regexp.MustCompile(`[#]\{([\w\.]+)\}`)
 )
 
 const characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+
+var (
+	supportedImage = regexp.MustCompile(`^image\/(png|jpeg|gif|webp)$`)
+	supportedVideo = regexp.MustCompile(`^video\/(mp4|webm|3gpp|quicktime)$`)
+	isImage        = regexp.MustCompile(`(png|jpe?g|gif|webp)$`)
+	isVideo        = regexp.MustCompile(`(mp4|webm|mov|3gpp?)$`)
+	values         = regexp.MustCompile(`[#]\{([\w\.]+)\}`)
+)
+
+func ParseFilename(raw string) (string, string) {
+	values := strings.Split(raw, ".")
+	n := len(values) - 1
+	return strings.Join(values[:n], ""), values[n]
+}
+
+func SupportedMediaType(mime string) bool {
+	return supportedImage.MatchString(mime) || supportedVideo.MatchString(mime)
+}
+
+func IsVideo(raw string) bool {
+	return isVideo.MatchString(raw)
+}
+
+func IsImage(raw string) bool {
+	return isImage.MatchString(raw)
+}
 
 func ReplaceValues(bsrc []byte) []byte {
 	for _, items := range values.FindAllSubmatch(bsrc, -1) {
