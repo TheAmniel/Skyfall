@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"crypto/rand"
 	"math/big"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/klauspost/compress/gzip"
 )
@@ -21,7 +23,11 @@ var (
 	BuiltAt    string
 )
 
-const characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+const (
+	characters      = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	maxURLRuneCount = 2083
+	minURLRuneCount = 3
+)
 
 var (
 	supportedImage = regexp.MustCompile(`^image\/(png|jpeg|gif|webp)$`)
@@ -30,6 +36,27 @@ var (
 	isVideo        = regexp.MustCompile(`(mp4|webm|mov|3gpp?)$`)
 	values         = regexp.MustCompile(`[#]\{([\w\.]+)\}`)
 )
+
+func IsURL(str string) bool {
+	if str == "" || utf8.RuneCountInString(str) >= maxURLRuneCount || len(str) <= minURLRuneCount || strings.HasPrefix(str, ".") {
+		return false
+	}
+
+	if strings.Contains(str, ":") && !strings.Contains(str, "://") {
+		str = "http://" + str
+	}
+	u, err := url.Parse(str)
+	if err != nil {
+		return false
+	}
+	if strings.HasPrefix(u.Host, ".") {
+		return false
+	}
+	if u.Host == "" && (u.Path != "" && !strings.Contains(u.Path, ".")) {
+		return false
+	}
+	return true // TODO: RegExp
+}
 
 func ParseFilename(raw string) (string, string) {
 	values := strings.Split(raw, ".")
@@ -97,19 +124,26 @@ func GetPath(p string) (string, error) {
 	return dir, nil
 }
 
+func GetOrCreatePath(p string) (string, error) {
+	d, err := GetPath(p)
+	if err != nil {
+		return "", err
+	}
+
+	if err = os.Mkdir(d, 0777); err != nil && !os.IsExist(err) {
+		return "", err
+	}
+	return d, nil
+}
+
 func Gzip(data []byte) ([]byte, error) {
 	buff := bytes.NewBuffer(nil)
 	w, err := gzip.NewWriterLevel(buff, gzip.BestCompression)
-	if err != nil {
+	if _, err = w.Write(data); err != nil {
 		return nil, err
 	}
-	if _, err := w.Write(data); err != nil {
-		return nil, err
-	}
-	if err := w.Flush(); err != nil {
-		return nil, err
-	}
-	if err := w.Close(); err != nil {
+
+	if err = w.Close(); err != nil {
 		return nil, err
 	}
 	return buff.Bytes(), nil
@@ -122,10 +156,10 @@ func Gunzip(data []byte) ([]byte, error) {
 	}
 
 	var buff bytes.Buffer
-	if _, err := zip.WriteTo(&buff); err != nil {
+	if _, err = zip.WriteTo(&buff); err != nil {
 		return nil, err
 	}
-	if err := zip.Close(); err != nil {
+	if err = zip.Close(); err != nil {
 		return nil, err
 	}
 	return buff.Bytes(), nil

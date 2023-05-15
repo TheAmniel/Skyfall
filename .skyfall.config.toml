@@ -5,19 +5,20 @@ secret = "123456789"
 timeZone = "#{SERVER_TIMEZONE}"
 limit = 15
 prefork = false
-strict-routing = false
-case-sensitive = true
-unescape-path = true
+strictRouting = false
+caseSensitive = true
+unescapePath = true
 
 [database]
 type = "local"
 name = "skyfall.database"
-prepare-stmt = true
-skip-default-transaction = true
+prepareStmt = true
+skipDefaultTransaction = true
 
 [middleware]
 cache = true
 compress = true
 logger = true
 recover = true
+shortener = true
 banned = true

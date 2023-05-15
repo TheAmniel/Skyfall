@@ -9,7 +9,7 @@ import (
 )
 
 func Metadata(input []byte) (map[string]any, error) {
-	toolsPath, err := utils.GetPath("tools")
+	toolsPath, err := utils.GetOrCreatePath("tools")
 	if err != nil {
 		return nil, err
 	}

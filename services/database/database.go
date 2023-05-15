@@ -34,7 +34,7 @@ func New(cfg *config.DatabaseConfig) *Database {
 		panic(err)
 	}
 
-	db.AutoMigrate(&types.File{}, &types.Ban{})
+	db.AutoMigrate(&types.File{}, &types.Short{}, &types.Ban{})
 	return db
 }
 

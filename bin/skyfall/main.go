@@ -18,19 +18,7 @@ import (
 	"skyfall/routes"
 	"skyfall/services/config"
 	"skyfall/services/database"
-	"skyfall/utils"
 )
-
-func init() {
-	toolsPath, err := utils.GetPath("tools")
-	if err != nil {
-		panic(err)
-	}
-
-	if err := os.Mkdir(toolsPath, 0777); err != nil && !os.IsExist(err) {
-		panic(err)
-	}
-}
 
 func main() {
 	cfg := config.Load()
@@ -79,6 +67,10 @@ func main() {
 			Expiration:   24 * time.Hour,
 			CacheControl: true,
 		}))
+	}
+
+	if cfg.Middleware.Shortener {
+		app.Use(middlewares.Shortener(db))
 	}
 
 	/* --- ROUTES --- */

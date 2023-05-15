@@ -47,7 +47,7 @@ func GetFile(db *database.Database) fiber.Handler {
 			})
 		}
 
-		if c.Query("thumbnail") != "" {
+		if c.QueryBool("thumbnail") {
 			if utils.IsVideo(file.Type) {
 				// TODO
 			} else if utils.IsImage(file.Type) {

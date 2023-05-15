@@ -14,23 +14,24 @@ type (
 		TimeZone      string `toml:"timeZone"`
 		Limit         int    `toml:"limit"`
 		Prefork       bool   `toml:"prefork"`
-		StrictRouting bool   `toml:"strict-routing"`
-		CaseSensitive bool   `toml:"case-sensitive"`
-		UnescapePath  bool   `toml:"unescape-path"`
+		StrictRouting bool   `toml:"strictRouting"`
+		CaseSensitive bool   `toml:"caseSensitive"`
+		UnescapePath  bool   `toml:"unescapePath"`
 	}
 
 	DatabaseConfig struct {
 		Type                   string `toml:"type"`
 		Name                   string `toml:"name"`
-		PrepareStmt            bool   `toml:"prepare-stmt"`
-		SkipDefaultTransaction bool   `toml:"skip-default-transaction"`
+		PrepareStmt            bool   `toml:"prepareStmt"`
+		SkipDefaultTransaction bool   `toml:"skipDefaultTransaction"`
 	}
 
 	MiddlewareConfig struct {
-		Cache    bool `toml:"cache"`
-		Compress bool `toml:"compress"`
-		Logger   bool `toml:"logger"`
-		Recover  bool `toml:"recover"`
-		Banned   bool `toml:"banned"`
+		Cache     bool `toml:"cache"`
+		Compress  bool `toml:"compress"`
+		Logger    bool `toml:"logger"`
+		Recover   bool `toml:"recover"`
+		Shortener bool `toml:"shortener"`
+		Banned    bool `toml:"banned"`
 	}
 )

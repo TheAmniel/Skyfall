@@ -7,6 +7,8 @@ import (
 	"skyfall/utils"
 )
 
+var FileIDLimit int = 16
+
 type File struct {
 	ID        string    `gorm:"type:varchar(16);primaryKey;unique;not null" json:"id"`
 	Type      string    `gorm:"type:varchar(4);not null" json:"type"`
@@ -21,7 +23,7 @@ func (f *File) BeforeCreate(tx *gorm.DB) error {
 	}
 
 generate:
-	id := utils.RandomString(16)
+	id := utils.RandomString(FileIDLimit)
 	r := tx.Select("type").Where("id = ? AND type = ?", id, f.Type).First(&File{})
 	if r.RowsAffected > 0 {
 		goto generate // re-generate ID
