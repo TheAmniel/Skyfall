@@ -75,7 +75,7 @@ func AddFile(db *database.Database) fiber.Handler {
 		}
 
 		_, extension := utils.ParseFilename(form.Filename)
-		if !utils.IsImage(extension) && !utils.IsVideo(extension) {
+		if !utils.IsImage(extension) && !utils.IsVideo(extension) && !utils.SupportedMediaType(form.Header["Content-Type"][0]) {
 			return c.Status(415).JSON(fiber.Map{
 				"message": "Unsupported media type",
 			})

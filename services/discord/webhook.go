@@ -9,10 +9,10 @@ import (
 
 // TODO
 type WebhookSend struct {
-	Content   string         `json:"content,omitempty"`
-	Username  string         `json:"username,omitempty"`
-	AvatarURL string         `json:"avatar_url,omitempty"`
-	Embeds    []any `json:"embeds,omitempty"`
+	Content   string `json:"content,omitempty"`
+	Username  string `json:"username,omitempty"`
+	AvatarURL string `json:"avatar_url,omitempty"`
+	Embeds    []any  `json:"embeds,omitempty"`
 }
 
 func SendWebhook(data WebhookSend) error {

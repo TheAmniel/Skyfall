@@ -33,5 +33,6 @@ type (
 		Recover   bool `toml:"recover"`
 		Shortener bool `toml:"shortener"`
 		Banned    bool `toml:"banned"`
+		Traffic   bool `toml:"traffic"`
 	}
 )

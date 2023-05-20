@@ -23,6 +23,6 @@ func Configure(app *fiber.App, db *database.Database, cfg *config.ServerConfig) 
 	short.Delete("/:id", middlewares.Authorization(cfg.Secret), controllers.DeleteShort(db))
 
 	app.Use(func(c *fiber.Ctx) error {
-		return c.Redirect("https://github.com/TheAmniel")
+		return c.Status(404).JSON(fiber.Map{"message": "Endpoint is not found"})
 	})
 }

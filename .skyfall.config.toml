@@ -16,9 +16,10 @@ prepareStmt = true
 skipDefaultTransaction = true
 
 [middleware]
-cache = true
+cache = false
 compress = true
 logger = true
 recover = true
 shortener = true
 banned = true
+traffic = true

@@ -7,11 +7,11 @@ import (
 )
 
 type Ban struct {
-	IP        string    `gorm:"type:varchar(15);primaryKey;unique;not null" json:"ip"`
-	CreatedAt time.Time `gorm:"not null" json:"created_at"`
+	IP   string    `gorm:"type:varchar(15);primaryKey;unique;not null" json:"ip"`
+	Date time.Time `gorm:"not null" json:"date"`
 }
 
 func (b *Ban) BeforeCreate(tx *gorm.DB) error {
-	b.CreatedAt = time.Now()
+	b.Date = time.Now()
 	return nil
 }

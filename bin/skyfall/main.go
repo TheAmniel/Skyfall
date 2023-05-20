@@ -61,6 +61,10 @@ func main() {
 		app.Use(middlewares.Banned(db))
 	}
 
+	if cfg.Middleware.Traffic {
+		app.Use(middlewares.Traffic(db))
+	}
+
 	if cfg.Middleware.Cache {
 		app.Use(cache.New(cache.Config{
 			CacheHeader:  "X-Cache-Status",
