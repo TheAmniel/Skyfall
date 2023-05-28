@@ -9,12 +9,6 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cache"
-	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/recover"
-
-	"skyfall/middlewares"
 	"skyfall/routes"
 	"skyfall/services/config"
 	"skyfall/services/database"
@@ -38,47 +32,11 @@ func main() {
 		UnescapePath:  cfg.Server.UnescapePath,
 		Prefork:       cfg.Server.Prefork,
 		BodyLimit:     cfg.Server.Limit << 20,
+		ErrorHandler:  routes.ErrorHandler,
 	})
 
-	/* --- MIDDLEWARES ---*/
-	if cfg.Middleware.Logger {
-		app.Use(logger.New(logger.Config{
-			TimeZone: loc.String(),
-		}))
-	}
-
-	if cfg.Middleware.Compress {
-		app.Use(compress.New(compress.Config{
-			Level: compress.LevelBestSpeed,
-		}))
-	}
-
-	if cfg.Middleware.Recover {
-		app.Use(recover.New())
-	}
-
-	if cfg.Middleware.Banned {
-		app.Use(middlewares.Banned(db))
-	}
-
-	if cfg.Middleware.Traffic {
-		app.Use(middlewares.Traffic(db))
-	}
-
-	if cfg.Middleware.Cache {
-		app.Use(cache.New(cache.Config{
-			CacheHeader:  "X-Cache-Status",
-			Expiration:   24 * time.Hour,
-			CacheControl: true,
-		}))
-	}
-
-	if cfg.Middleware.Shortener {
-		app.Use(middlewares.Shortener(db))
-	}
-
-	/* --- ROUTES --- */
-	routes.Configure(app, db, cfg.Server)
+	/* --- ROUTES & MIDDLEWARES --- */
+	routes.Configure(app, db, cfg)
 
 	if !fiber.IsChild() {
 		log.Printf("Running Skyfall \"%s:%s\"\n", cfg.Server.Host, cfg.Server.Port)

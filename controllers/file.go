@@ -17,9 +17,7 @@ func GetAllFile(db *database.Database) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var files []types.File
 		if err := db.Order("created_at DESC").Find(&files).Error; err != nil {
-			return c.Status(500).JSON(fiber.Map{
-				"message": err.Error(),
-			})
+			return err
 		}
 		return c.Status(200).JSON(files)
 	}
@@ -30,21 +28,15 @@ func GetFile(db *database.Database) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, ext := utils.ParseFilename(c.Params("id"))
 		if !utils.IsImage(ext) && !utils.IsVideo(ext) {
-			return c.Status(400).JSON(fiber.Map{
-				"message": "Invalid extension",
-			})
+			return fiber.NewError(400, "Invalid extension")
 		}
 
 		var file types.File
 		if err := db.Select("type", "data").Where("id = ? AND type = ?", id, ext).First(&file).Error; err != nil {
 			if database.IsNotFound(err) {
-				return c.Status(404).JSON(fiber.Map{
-					"message": "File not found",
-				})
+				return fiber.NewError(404, "File not found")
 			}
-			return c.Status(500).JSON(fiber.Map{
-				"message": err.Error(),
-			})
+			return err
 		}
 
 		if c.QueryBool("thumbnail") {
@@ -69,38 +61,28 @@ func AddFile(db *database.Database) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		form, err := c.FormFile("file")
 		if err != nil {
-			return c.Status(400).JSON(fiber.Map{
-				"message": "Missing file",
-			})
+			return fiber.NewError(400, "Missing file")
 		}
 
 		_, extension := utils.ParseFilename(form.Filename)
 		if !utils.IsImage(extension) && !utils.IsVideo(extension) && !utils.SupportedMediaType(form.Header["Content-Type"][0]) {
-			return c.Status(415).JSON(fiber.Map{
-				"message": "Unsupported media type",
-			})
+			return fiber.NewError(415, "Unsupported media type")
 		}
 
 		file, err := form.Open()
 		if err != nil {
-			return c.Status(400).JSON(fiber.Map{
-				"message": "Unable to open file",
-			})
+			return fiber.NewError(400, "Unable to open file")
 		}
 		defer file.Close()
 
 		data, err := io.ReadAll(file)
 		if err != nil {
-			return c.Status(500).JSON(fiber.Map{
-				"message": "Unable to read file",
-			})
+			return fiber.NewError(500, "Unable to read file")
 		}
 
 		mfile := types.File{Type: extension, Data: data}
 		if err := db.Create(&mfile).Error; err != nil {
-			return c.Status(500).JSON(fiber.Map{
-				"message": err.Error(),
-			})
+			return err
 		}
 		return c.Status(200).JSON(mfile)
 	}
@@ -111,27 +93,19 @@ func DeleteFile(db *database.Database) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, ext := utils.ParseFilename(c.Params("id"))
 		if !utils.IsImage(ext) && !utils.IsVideo(ext) {
-			return c.Status(400).JSON(fiber.Map{
-				"message": "Invalid extension",
-			})
+			return fiber.NewError(400, "Invalid extension")
 		}
 
 		var file types.File
 		if err := db.Select("id", "type").Where("id = ? AND type = ?", id, ext).First(&file).Error; err != nil {
 			if database.IsNotFound(err) {
-				return c.Status(404).JSON(fiber.Map{
-					"message": "File not found",
-				})
+				return fiber.NewError(404, "File not found")
 			}
-			return c.Status(500).JSON(fiber.Map{
-				"message": err.Error(),
-			})
+			return err
 		}
 
 		if err := db.Unscoped().Delete(&file).Error; err != nil {
-			return c.Status(500).JSON(fiber.Map{
-				"message": err.Error(),
-			})
+			return err
 		}
 		return c.Status(200).JSON(fiber.Map{
 			"message": "OK",

@@ -20,9 +20,8 @@ func Traffic(db *database.Database) fiber.Handler {
 		file := c.Path()
 		go func() {
 			// TODO: exclude some path
-			trafficP := trafficPeriod()
-			traffic := types.Traffic{Month: trafficP}
-			if err := db.Where("Month = ?", trafficP).First(&traffic).Error; err != nil {
+			traffic := types.Traffic{Month: trafficPeriod()}
+			if err := db.Where("month = ?", traffic.Month).First(&traffic).Error; err != nil {
 				if database.IsNotFound(err) {
 					db.Create(&traffic)
 				} else {

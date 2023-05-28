@@ -11,7 +11,7 @@ unescapePath = true
 
 [database]
 type = "local"
-name = "skyfall.database"
+name = "skyfall.data"
 prepareStmt = true
 skipDefaultTransaction = true
 

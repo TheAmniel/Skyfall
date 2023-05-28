@@ -14,8 +14,6 @@ func Banned(db *database.Database) fiber.Handler {
 			}
 			return err
 		}
-		return c.Status(401).JSON(fiber.Map{
-			"message": "Unauthorized",
-		})
+		return fiber.NewError(403, "Forbidden")
 	}
 }

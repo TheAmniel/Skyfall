@@ -21,13 +21,13 @@ func New(cfg *config.DatabaseConfig) *Database {
 		panic(err)
 	}
 	if cfg.Type != "local" && cfg.Type != "memory" {
-		panic("Invalid database type")
+		panic("[Database]: Invalid database type")
 	}
 
 	connection := buildConnection(cfg.Type, cfg.Name, dir)
 	db, err := gorm.Open(sqlite.Open(connection), &gorm.Config{
-		SkipDefaultTransaction: true,
-		PrepareStmt:            true,
+		SkipDefaultTransaction: cfg.SkipDefaultTransaction,
+		PrepareStmt:            cfg.PrepareStmt,
 		Logger:                 logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
