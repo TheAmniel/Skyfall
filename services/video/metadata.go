@@ -15,7 +15,7 @@ func Metadata(input []byte) (map[string]any, error) {
 	}
 
 	cmd := exec.Command(toolsPath+"ffprobe", "-hide_banner", "-of", "json", "-show_streams", "-show_format", "pipe:0")
-	result := bytes.NewBuffer(make([]byte, 0))
+	result := bytes.NewBuffer(nil)
 	cmd.Stdout = result
 
 	stdin, err := cmd.StdinPipe()

@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"skyfall/services/database"
 	"skyfall/services/image"
-	_ "skyfall/services/video"
+	"skyfall/services/video"
 	"skyfall/types"
 	"skyfall/utils"
 )
@@ -41,7 +41,9 @@ func GetFile(db *database.Database) fiber.Handler {
 
 		if c.QueryBool("thumbnail") {
 			if utils.IsVideo(file.Type) {
-				// TODO
+				if video, err := video.New(file.Data).Thumbnail().Process(); err == nil {
+					return c.Status(200).Type("jpeg").SendStream(bytes.NewReader(video), len(video))
+				}
 			} else if utils.IsImage(file.Type) {
 				if img, err := image.New(file.Data).Thumbnail().Process(); err == nil {
 					return c.Status(200).Type(file.Type).SendStream(bytes.NewReader(img), len(img))

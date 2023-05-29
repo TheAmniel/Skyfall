@@ -16,7 +16,7 @@ prepareStmt = true
 skipDefaultTransaction = true
 
 [middleware]
-cache = false
+cache = true
 compress = true
 logger = true
 recover = true
